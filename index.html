@@ -1,204 +1,4 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whale Motion Control with Gyroscope API</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-        }
-        .instructions {
-            max-width: 300px;
-            padding: 20px;
-        }
-        .gyroscope-data {
-            margin-top: 20px;
-            font-size: 1.2em;
-        }
-    </style>
-</head>
-<body>
-    <div class="instructions">
-        <h1>Control the Whale</h1>
-        <p>Allow motion access and tilt your phone to move the whale hologram.</p>
-        <button onclick="startGyroscope()">Enable Gyroscope</button>
-    </div>
-    <div class="gyroscope-data">
-        <p>X-axis angular velocity: <span id="x">0</span>°/s</p>
-        <p>Y-axis angular velocity: <span id="y">0</span>°/s</p>
-        <p>Z-axis angular velocity: <span id="z">0</span>°/s</p>
-    </div>
-
-    <script>
-        function startGyroscope() {
-            // Check for Gyroscope API support
-            if ('Gyroscope' in window) {
-                try {
-                    // Request permission on iOS or other permission-restricted platforms
-                    navigator.permissions.query({ name: 'gyroscope' }).then((result) => {
-                        if (result.state === 'denied') {
-                            console.log("Permission to use gyroscope sensor is denied.");
-                            return;
-                        }
-                        initializeGyroscope();
-                    }).catch((error) => {
-                        console.error("Gyroscope permission error:", error);
-                    });
-                } catch (error) {
-                    console.error("Gyroscope is not supported:", error);
-                }
-            } else {
-                console.log("Gyroscope API is not supported on this device.");
-            }
-        }
-
-        function initializeGyroscope() {
-            // Initialize the gyroscope with a frequency of 60Hz
-            const gyroscope = new Gyroscope({ frequency: 60 });
-            gyroscope.addEventListener('reading', () => {
-                document.getElementById("x").textContent = gyroscope.x.toFixed(2);
-                document.getElementById("y").textContent = gyroscope.y.toFixed(2);
-                document.getElementById("z").textContent = gyroscope.z.toFixed(2);
-            });
-
-            gyroscope.addEventListener('error', (event) => {
-                if (event.error.name === 'NotAllowedError') {
-                    console.log("No permissions to use the gyroscope.");
-                } else if (event.error.name === 'NotReadableError') {
-                    console.log("Cannot connect to the gyroscope sensor.");
-                }
-            });
-
-            gyroscope.start();
-        }
-    </script>
-</body>
-</html> -->
-
-
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whale Motion Control</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-        }
-        .instructions {
-            max-width: 300px;
-            padding: 20px;
-        }
-        .gyroscope-data {
-            margin-top: 20px;
-            font-size: 1.2em;
-        }
-    </style>
-</head>
-<body>
-    <div class="instructions">
-        <h1>Control the Whale</h1>
-        <p>Allow motion access and tilt your phone to move the whale hologram.</p>
-        <button onclick="startGyroscope()">Enable Motion Control</button>
-    </div>
-    <div class="gyroscope-data">
-        <p>X-axis rotation: <span id="x">0</span>°</p>
-        <p>Y-axis rotation: <span id="y">0</span>°</p>
-        <p>Z-axis rotation: <span id="z">0</span>°</p>
-    </div>
-
-    <script>
-        function startGyroscope() {
-            console.log("Attempting to start Gyroscope...");
-            if ('Gyroscope' in window) {
-                try {
-                    navigator.permissions.query({ name: 'gyroscope' }).then((result) => {
-                        console.log("Gyroscope permission result:", result.state);
-                        if (result.state === 'denied') {
-                            console.log("Permission to use gyroscope sensor is denied.");
-                            initializeDeviceOrientation(); // Fallback if permission denied
-                            return;
-                        }
-                        initializeGyroscope();
-                    }).catch((error) => {
-                        console.error("Gyroscope permission error:", error);
-                        initializeDeviceOrientation(); // Fallback if permissions error
-                    });
-                } catch (error) {
-                    console.error("Gyroscope is not supported:", error);
-                    initializeDeviceOrientation(); // Fallback if Gyroscope API is unsupported
-                }
-            } else {
-                console.log("Gyroscope API is not supported on this device. Using DeviceOrientationEvent as fallback.");
-                initializeDeviceOrientation(); // Fallback if Gyroscope API is unavailable
-            }
-        }
-
-        function initializeGyroscope() {
-            console.log("Gyroscope API is supported. Starting gyroscope...");
-            const gyroscope = new Gyroscope({ frequency: 60 });
-            gyroscope.addEventListener('reading', () => {
-                document.getElementById("x").textContent = gyroscope.x.toFixed(2);
-                document.getElementById("y").textContent = gyroscope.y.toFixed(2);
-                document.getElementById("z").textContent = gyroscope.z.toFixed(2);
-            });
-
-            gyroscope.addEventListener('error', (event) => {
-                if (event.error.name === 'NotAllowedError') {
-                    console.log("No permissions to use the gyroscope.");
-                    initializeDeviceOrientation(); // Fallback if error occurs
-                } else if (event.error.name === 'NotReadableError') {
-                    console.log("Cannot connect to the gyroscope sensor.");
-                    initializeDeviceOrientation(); // Fallback if sensor not readable
-                }
-            });
-
-            gyroscope.start();
-        }
-
-        function initializeDeviceOrientation() {
-            console.log("Using DeviceOrientationEvent fallback.");
-            window.addEventListener("deviceorientation", (event) => {
-                console.log("DeviceOrientationEvent detected. Alpha:", event.alpha, "Beta:", event.beta, "Gamma:", event.gamma);
-                
-                // Checking if the values are valid before updating
-                const alpha = event.alpha ? event.alpha.toFixed(2) : "No Data";
-                const beta = event.beta ? event.beta.toFixed(2) : "No Data";
-                const gamma = event.gamma ? event.gamma.toFixed(2) : "No Data";
-
-                // Logging the values to confirm they're updating
-                console.log("Updating HTML values:", "Alpha:", alpha, "Beta:", beta, "Gamma:", gamma);
-
-                // Update HTML only if data is valid
-                document.getElementById("x").textContent = alpha;
-                document.getElementById("y").textContent = beta;
-                document.getElementById("z").textContent = gamma;
-            });
-        }
-    </script>
-</body>
-</html> -->
-
-
-
+<!-- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -229,8 +29,8 @@
 <body>
     <div class="instructions">
         <h1>Gyroscope Demo</h1>
-        <p>Click "Start Demo" and rotate your device to see gyroscope data.</p>
-        <button onclick="startDemo()">Start Demo</button>
+        <p>Click "Start the Demo" and rotate your device to see gyroscope data.</p>
+        <button onclick="startDemo()">Start the demo</button>
     </div>
     <div class="gyroscope-data">
         <p><strong>Gyroscope Rotation Rate</strong></p>
@@ -265,4 +65,90 @@
 </body>
 </html>
 
+ -->
 
+
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Gyroscope Demo</title>
+     <style>
+         body {
+             display: flex;
+             flex-direction: column;
+             justify-content: center;
+             align-items: center;
+             height: 100vh;
+             font-family: Arial, sans-serif;
+             text-align: center;
+             margin: 0;
+             background-color: #292929; /* Page background color */
+         }
+         .instructions {
+             max-width: 300px;
+             padding: 20px;
+             color: #f4f5fc; /* Ensure instructions text stands out on dark background */
+         }
+         .gyroscope-data {
+             margin-top: 20px;
+             padding: 20px;
+             background-color: rgba(241, 241, 241, 0.8); /* Panel with 50% opacity */
+             color: #292929; /* Text color inside the panel */
+             border-radius: 10px;
+             font-size: 1.2em;
+         }
+         button {
+             padding: 15px 30px;
+             font-size: 1.2em;
+             color: #f4f5fc;
+             background-color: #007B55; 
+             border: none;
+             border-radius: 5px;
+             cursor: pointer;
+         }
+         button:hover {
+             background-color: #005640;
+         }
+     </style>
+ </head>
+ <body>
+     <div class="instructions">
+         <h1>Gyroscope Demo</h1>
+         <p>Click "Start the Demo" and rotate your device to see gyroscope data.</p>
+         <button onclick="startDemo()">Start the demo</button>
+     </div>
+     <div class="gyroscope-data">
+         <p><strong>Gyroscope Rotation Rate</strong></p>
+         <p>X-axis: <span id="gyroX">0</span>°/s</p>
+         <p>Y-axis: <span id="gyroY">0</span>°/s</p>
+         <p>Z-axis: <span id="gyroZ">0</span>°/s</p>
+     </div>
+ 
+     <script>
+         function startDemo() {
+             console.log("Starting gyroscope demo...");
+             window.addEventListener("devicemotion", motionHandler);
+ 
+             function motionHandler(evt) {
+                 // Access Gyroscope Data (rotation rate)
+                 const rR = evt.rotationRate;
+                 if (rR) {
+                     const gyroX = rR.beta ? rR.beta.toFixed(2) : "No Data";
+                     const gyroY = rR.gamma ? rR.gamma.toFixed(2) : "No Data";
+                     const gyroZ = rR.alpha ? rR.alpha.toFixed(2) : "No Data";
+ 
+                     // Update gyroscope (rotation rate) values
+                     document.getElementById("gyroX").textContent = gyroX;
+                     document.getElementById("gyroY").textContent = gyroY;
+                     document.getElementById("gyroZ").textContent = gyroZ;
+                 } else {
+                     console.log("Rotation rate data not available");
+                 }
+             }
+         }
+     </script>
+ </body>
+ </html>
+ 
