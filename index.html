@@ -165,8 +165,7 @@
 
 
  <!--version of "start the demo" button and "stop button" -->
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -251,6 +250,7 @@
             if (isRunning) {
                 // Stop the demo
                 window.removeEventListener("deviceorientation", orientationHandler);
+                orientationHandler = null; // Clear the handler reference
                 button.textContent = "Start Demo";
                 button.classList.remove("stop-button");
                 button.classList.add("start-button");
@@ -299,5 +299,3 @@
     </script>
 </body>
 </html>
-
- 
