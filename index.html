@@ -187,7 +187,17 @@
              max-width: 300px;
              padding: 20px;
              color: #f4f5fc; /* Ensure instructions text stands out on dark background */
+             line-height: 1.6; /* Add spacing between lines */
          }
+         .instructions h1 {
+            font-size: 3em; /* Larger title */
+        }
+        .instructions .notice {
+            font-size: 0.9em; /* Smaller text for the notice */
+        }
+        .instructions .instruction-text {
+            font-size: 1em; /* Slightly smaller instructions */
+        }
          .gyroscope-data {
              margin-top: 20px;
              padding: 20px;
@@ -223,8 +233,11 @@
  </head>
  <body>
      <div class="instructions">
-         <h1>Gyroscope Demo</h1>
-         <p>Click "Start Demo" and rotate your device to see gyroscope data.</p>
+        <h1>Gyroscope Demo</h1>
+        <p>This demo page should be run from a mobile phone or a tablet.</p>
+        <br> <!-- Adds extra spacing -->
+        <br> <!-- Adds extra spacing -->
+        <p>Click "Start Demo" and rotate your device to see gyroscope data.</p>
          <button id="toggleButton" onclick="toggleDemo()">Start Demo</button>
      </div>
      <div class="gyroscope-data"> 
