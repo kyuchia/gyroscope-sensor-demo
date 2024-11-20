@@ -68,7 +68,7 @@
  -->
 
 
- <!DOCTYPE html>
+ <!-- <!DOCTYPE html>
  <html lang="en">
  <head>
      <meta charset="UTF-8">
@@ -99,6 +99,100 @@
              border-radius: 10px;
              font-size: 1.2em;
          }
+         button {
+             padding: 15px 30px;
+             font-size: 1.2em;
+             color: #f4f5fc;
+             background-color: #007B55; 
+             border: none;
+             border-radius: 5px;
+             cursor: pointer;
+         }
+         button:hover {
+             background-color: #005640;
+         }
+     </style>
+ </head>
+ <body>
+     <div class="instructions">
+         <h1>Gyroscope Demo</h1>
+         <p>Click "Start the Demo" and rotate your device to see gyroscope data.</p>
+         <button onclick="startDemo()">Start the demo</button>
+     </div>
+     <div class="gyroscope-data">
+         <p><strong>Gyroscope Rotation Rate</strong></p>
+         <p>X-axis: <span id="gyroX">0</span>°/s</p>
+         <p>Y-axis: <span id="gyroY">0</span>°/s</p>
+         <p>Z-axis: <span id="gyroZ">0</span>°/s</p>
+     </div>
+ 
+     <script>
+         function startDemo() {
+             console.log("Starting gyroscope demo...");
+             window.addEventListener("devicemotion", motionHandler);
+ 
+             function motionHandler(evt) {
+                 // Access Gyroscope Data (rotation rate)
+                 const rR = evt.rotationRate;
+                 if (rR) {
+                     const gyroX = rR.beta ? rR.beta.toFixed(2) : "No Data";
+                     const gyroY = rR.gamma ? rR.gamma.toFixed(2) : "No Data";
+                     const gyroZ = rR.alpha ? rR.alpha.toFixed(2) : "No Data";
+ 
+                     // Update gyroscope (rotation rate) values
+                     document.getElementById("gyroX").textContent = gyroX;
+                     document.getElementById("gyroY").textContent = gyroY;
+                     document.getElementById("gyroZ").textContent = gyroZ;
+                 } else {
+                     console.log("Rotation rate data not available");
+                 }
+             }
+         }
+     </script>
+ </body>
+ </html>
+  -->
+
+
+   <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Gyroscope Demo</title>
+     <style>
+         body {
+             display: flex;
+             flex-direction: column;
+             justify-content: center;
+             align-items: center;
+             height: 100vh;
+             font-family: Arial, sans-serif;
+             text-align: center;
+             margin: 0;
+             background-color: #292929; /* Page background color */
+         }
+         .instructions {
+             max-width: 300px;
+             padding: 20px;
+             color: #f4f5fc; /* Ensure instructions text stands out on dark background */
+         }
+         .gyroscope-data {
+             margin-top: 20px;
+             padding: 20px;
+             background-color: rgba(241, 241, 241, 0.8); /* Panel with 50% opacity */
+             color: #292929; /* Text color inside the panel */
+             border-radius: 10px;
+             font-size: 1.2em;
+         }
+         .gyroscope-data p {
+            margin: 5px 0;
+        }
+        .gyroscope-data span {
+            display: inline-block; /* Ensures fixed width and alignment */
+            width: 70px; /* Adjust this width based on maximum expected length */
+            text-align: right; /* Align numbers to the right */
+        }
          button {
              padding: 15px 30px;
              font-size: 1.2em;
