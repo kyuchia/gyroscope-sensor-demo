@@ -165,7 +165,6 @@
 
 
  <!--version of "start the demo" button and "stop button" -->
- 
  <!DOCTYPE html>
  <html lang="en">
  <head>
@@ -243,15 +242,13 @@
  
      <script>
          let isRunning = false; // Track the state of the demo
-         let orientationHandler; // Reference to the orientation event handler
  
          function toggleDemo() {
              const button = document.getElementById("toggleButton");
  
              if (isRunning) {
                  // Stop the demo
-                 window.removeEventListener("deviceorientation", orientationHandler);
-                 orientationHandler = null; // Clear the handler reference
+                 window.removeEventListener("deviceorientation", handleOrientationEvent);
                  button.textContent = "Start Demo";
                  button.classList.remove("stop-button");
                  button.classList.add("start-button");
@@ -283,19 +280,19 @@
          }
  
          function startGyroscope() {
-             orientationHandler = function (event) {
-                 const rotateDegrees = event.alpha || 0; // alpha: rotation around z-axis
-                 const leftToRight = event.gamma || 0;   // gamma: left-to-right tilt
-                 const frontToBack = event.beta || 0;   // beta: front-to-back tilt
- 
-                 // Update gyroscope data in the UI
-                 document.getElementById("gyroX").textContent = frontToBack.toFixed(2);
-                 document.getElementById("gyroY").textContent = leftToRight.toFixed(2);
-                 document.getElementById("gyroZ").textContent = rotateDegrees.toFixed(2);
-             };
- 
              // Add the device orientation event listener
-             window.addEventListener("deviceorientation", orientationHandler, true);
+             window.addEventListener("deviceorientation", handleOrientationEvent, true);
+         }
+ 
+         function handleOrientationEvent(event) {
+             const rotateDegrees = event.alpha || 0; // alpha: rotation around z-axis
+             const leftToRight = event.gamma || 0;   // gamma: left-to-right tilt
+             const frontToBack = event.beta || 0;   // beta: front-to-back tilt
+ 
+             // Update gyroscope data in the UI
+             document.getElementById("gyroX").textContent = frontToBack.toFixed(2);
+             document.getElementById("gyroY").textContent = leftToRight.toFixed(2);
+             document.getElementById("gyroZ").textContent = rotateDegrees.toFixed(2);
          }
      </script>
  </body>
