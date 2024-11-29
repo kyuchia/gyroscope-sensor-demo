@@ -1,0 +1,53 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    background-color: #292929; /* Page background color */
+}
+.instructions {
+    max-width: 300px;
+    color: #f4f5fc; /* Ensure instructions text stands out on dark background */
+    line-height: 1.6; /* Add spacing between lines */
+    margin-bottom: 30px; /* Add spacing below the instructions */
+}
+.instructions h1 {
+    font-size: 2.2em; /* Larger title */
+    margin: 0 0 20px 0; /* Add spacing below the title */
+}
+.gyroscope-data {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: rgba(241, 241, 241, 0.8); /* Panel with 50% opacity */
+    color: #292929; /* Text color inside the panel */
+    border-radius: 10px;
+    font-size: 1.2em;
+}
+.gyroscope-data p {
+    margin: 5px 0;
+}
+.gyroscope-data span {
+    display: inline-block; /* Ensures fixed width and alignment */
+    width: 70px; /* Adjust this width based on maximum expected length */
+    text-align: right; /* Align numbers to the right */
+}
+button {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    color: #f4f5fc;
+    background-color: #007B55;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px; /* Add spacing above the button */
+}
+.stop-button {
+    background-color: #d9534f; /* Red color for Stop button */
+}
+button:hover {
+    opacity: 0.9;
+}
