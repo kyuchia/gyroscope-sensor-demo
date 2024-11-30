@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Script loaded"); // Debugging log to confirm script is loaded
 
     // Initialize WebSocket connection
-    const socket = new WebSocket("wss://f756-207-164-135-99.ngrok-free.app"); // Replace with your Mac's local IP
+    const socket = new WebSocket("wss://471d-207-164-135-99.ngrok-free.appp"); // Replace with your Mac's local IP
 
     // WebSocket event handlers
     socket.onopen = () => {
