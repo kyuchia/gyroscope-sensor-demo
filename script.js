@@ -51,6 +51,9 @@
 // });
 
 //10.254.113.215
+// https://629d-207-164-135-99.ngrok-free.app
+
+console.log("Script loaded");
 
 document.addEventListener("DOMContentLoaded", () => {
     let isRunning = false; // Track the state of the demo
@@ -59,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Script loaded"); // Debugging log to confirm script is loaded
 
     // Initialize WebSocket connection
-    const socket = new WebSocket("ws://10.254.113.215:8080"); // Replace with your Mac's local IP
+    const socket = new WebSocket("wss://629d-207-164-135-99.ngrok-free.app"); // Replace with your Mac's local IP
 
     // WebSocket event handlers
     socket.onopen = () => {
