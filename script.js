@@ -53,11 +53,11 @@
 // }
 
 // Initialize WebSocket connection
-const socket = new WebSocket("ws://localhost:8080"); // Replace localhost with the actual WebSocket server address if needed
+const socket = new WebSocket("ws://10.254.113.215:8080");// Replace localhost with the actual WebSocket server address if needed: const socket = new WebSocket("ws://<PUBLIC_IP>:8080");
 
 // WebSocket Event Handlers
 socket.onopen = () => {
-    console.log("WebSocket connection established");
+    console.log("Connected to WebSocket server");
 };
 
 socket.onclose = () => {
