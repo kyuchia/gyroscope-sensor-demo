@@ -56,12 +56,14 @@ document.addEventListener("DOMContentLoaded", () => {
     let isRunning = false; // Track the state of the demo
     let orientationHandler; // Reference to the orientation event handler
 
+    console.log("Script loaded"); // Debugging log to confirm script is loaded
+
     // Initialize WebSocket connection
-    const socket = new WebSocket("ws://10.254.113.215:8080"); // Replace <YOUR_SERVER_IP> with your server's IP address
+    const socket = new WebSocket("ws://10.254.113.215:8080"); // Replace with your Mac's local IP
 
     // WebSocket event handlers
     socket.onopen = () => {
-        console.log("Connected to WebSocket serve");
+        console.log("WebSocket connection established");
     };
 
     socket.onclose = () => {
@@ -90,13 +92,14 @@ document.addEventListener("DOMContentLoaded", () => {
             if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
                 DeviceOrientationEvent.requestPermission()
                     .then((permissionState) => {
+                        console.log("Permission state:", permissionState); // Debugging
                         if (permissionState === "granted") {
                             startGyroscope();
                         } else {
                             alert("Permission denied.");
                         }
                     })
-                    .catch(console.error);
+                    .catch((error) => console.error("Permission request error:", error));
             } else {
                 // For non-iOS devices
                 startGyroscope();
@@ -110,8 +113,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startGyroscope() {
+        console.log("Starting gyroscope..."); // Debugging
+
         // Gyroscope data handler
         orientationHandler = (event) => {
+            console.log("Gyroscope event:", event); // Log the raw event for debugging
+
             const rotateDegrees = event.alpha || 0; // alpha: rotation around z-axis
             const leftToRight = event.gamma || 0;   // gamma: left-to-right tilt
             const frontToBack = event.beta || 0;    // beta: front-to-back tilt
@@ -130,6 +137,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 };
                 socket.send(JSON.stringify(gyroData));
                 console.log("Sent gyroscope data:", gyroData);
+            } else {
+                console.warn("WebSocket is not open; data not sent.");
             }
         };
 
@@ -137,3 +146,4 @@ document.addEventListener("DOMContentLoaded", () => {
         window.addEventListener("deviceorientation", orientationHandler, true);
     }
 });
+
