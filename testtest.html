@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gyroscope Demo</title>
+    <link rel="stylesheet" href="style.css"> <!-- Link to external CSS -->
+</head>
+<body>
+    <div class="instructions">
+        <h1>Gyroscope Demo</h1>
+        <p class="notice">Run this demo on a mobile phone or tablet and rotate.</p>
+        <button id="toggleButton" onclick="toggleDemo()">Start Demo</button>
+    </div>
+    <div class="gyroscope-data"> 
+        <p><strong>Gyroscope</strong></p>
+        <p>X-axis: <span id="gyroX">0</span>°</p>
+        <p>Y-axis: <span id="gyroY">0</span>°</p>
+        <p>Z-axis: <span id="gyroZ">0</span>°</p>
+    </div>
+    <script src="script.js"></script> <!-- Link to external JavaScript -->
+</body>
+</html>
