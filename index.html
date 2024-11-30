@@ -1,71 +1,16 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gyroscope Demo</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            background-color: #292929; /* Page background color */
-        }
-        .instructions {
-            max-width: 300px;
-            color: #f4f5fc; /* Ensure instructions text stands out on dark background */
-            line-height: 1.6; /* Add spacing between lines */
-            margin-bottom: 30px; /* Add spacing below the instructions */
-        }
-        .instructions h1 {
-            font-size: 2.2em; /* Larger title */
-            margin: 0 0 20px 0; /* Add spacing below the title */
-        }
-        .gyroscope-data {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: rgba(241, 241, 241, 0.8); /* Panel with 50% opacity */
-            color: #292929; /* Text color inside the panel */
-            border-radius: 10px;
-            font-size: 1.2em;
-        }
-        .gyroscope-data p {
-            margin: 5px 0;
-        }
-        .gyroscope-data span {
-            display: inline-block; /* Ensures fixed width and alignment */
-            width: 70px; /* Adjust this width based on maximum expected length */
-            text-align: right; /* Align numbers to the right */
-        }
-        button {
-            padding: 15px 30px;
-            font-size: 1.2em;
-            color: #f4f5fc;
-            background-color: #007B55;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 20px; /* Add spacing above the button */
-        }
-        .stop-button {
-            background-color: #d9534f; /* Red color for Stop button */
-        }
-        button:hover {
-            opacity: 0.9;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css"> <!-- Link CSS -->
 </head>
 <body>
     <div class="instructions">
         <h1>Gyroscope Demo</h1>
         <p class="notice">Run this demo on a mobile phone or tablet and rotate.</p>
-        <button id="toggleButton" onclick="toggleDemo()">Start Demo</button>
+        <button id="toggleButton">Start Demo</button>
     </div>
     <div class="gyroscope-data"> 
         <p><strong>Gyroscope</strong></p>
@@ -73,63 +18,6 @@
         <p>Y-axis: <span id="gyroY">0</span>°</p>
         <p>Z-axis: <span id="gyroZ">0</span>°</p>
     </div>
-
-    <script>
-        let isRunning = false; // Track the state of the demo
-        let orientationHandler; // Reference to the orientation event handler
-
-        function toggleDemo() {
-            const button = document.getElementById("toggleButton");
-
-            if (isRunning) {
-                // Stop the demo
-                window.removeEventListener("deviceorientation", orientationHandler);
-                orientationHandler = null; // Clear the handler reference
-                button.textContent = "Start Demo";
-                button.classList.remove("stop-button");
-                button.classList.add("start-button");
-                console.log("Gyroscope demo stopped.");
-            } else {
-                // Request permissions for iOS
-                if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
-                    DeviceOrientationEvent.requestPermission()
-                        .then((permissionState) => {
-                            if (permissionState === "granted") {
-                                startGyroscope();
-                            } else {
-                                alert("Permission to access device orientation was denied.");
-                            }
-                        })
-                        .catch(console.error);
-                } else {
-                    // Non-iOS devices
-                    startGyroscope();
-                }
-
-                button.textContent = "Stop Demo";
-                button.classList.remove("start-button");
-                button.classList.add("stop-button");
-                console.log("Gyroscope demo started.");
-            }
-
-            isRunning = !isRunning; // Toggle the running state
-        }
-
-        function startGyroscope() {
-            orientationHandler = function (event) {
-                const rotateDegrees = event.alpha || 0; // alpha: rotation around z-axis
-                const leftToRight = event.gamma || 0;   // gamma: left-to-right tilt
-                const frontToBack = event.beta || 0;   // beta: front-to-back tilt
-
-                // Update gyroscope data in the UI
-                document.getElementById("gyroX").textContent = frontToBack.toFixed(2);
-                document.getElementById("gyroY").textContent = leftToRight.toFixed(2);
-                document.getElementById("gyroZ").textContent = rotateDegrees.toFixed(2);
-            };
-
-            // Add the device orientation event listener
-            window.addEventListener("deviceorientation", orientationHandler, true);
-        }
-    </script>
+    <script src="script.js"></script> <!-- Link JavaScript -->
 </body>
 </html>
