@@ -6,10 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // OSC setup
     const udpPort = new osc.UDPPort({
-        localAddress: "0.0.0.0",   // IP address of the client (browser)
+        localAddress: "0.0.0.0",   // IP address of the client (browser) 192:168:70:245
         localPort: 57121,          // Port to listen for incoming OSC messages (optional)
         remoteAddress: "127.0.0.1", // IP address of the OSC server (Unity)
-        remotePort: 9000           // Port where Unity is listening
+        remotePort: 8000           // Port where Unity is listening
     });
 
     udpPort.open();
