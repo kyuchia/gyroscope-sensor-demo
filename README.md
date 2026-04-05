@@ -133,6 +133,3 @@ seascape-osc/
 └── README.md
 ```
 
-## License
-
-MIT
