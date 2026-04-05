@@ -39,7 +39,7 @@ wss.on("connection", (ws, req) => {
     ws.on("message", (raw) => {
         try {
             const msg = JSON.parse(raw.toString());
-            const pfx = msg.prefix || "/seascape";
+            const pfx = msg.prefix || "/webgyro";
 
             if (msg.orientation) {
                 const { alpha, beta, gamma } = msg.orientation;
@@ -89,7 +89,7 @@ wss.on("connection", (ws, req) => {
 });
 
 httpServer.listen(WS_PORT, "0.0.0.0", () => {
-    console.log(`\n  Seascape Controller Server`);
+    console.log(`\n  WebGyro Server`);
     console.log(`  WebSocket + HTTP: http://0.0.0.0:${WS_PORT}`);
     console.log(`  OSC target:       ${OSC_HOST}:${OSC_PORT}`);
     console.log(`  Verbose:          ${VERBOSE}\n`);

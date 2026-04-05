@@ -1,7 +1,7 @@
 {
-  "name": "seascape-controller-server",
+  "name": "webgyro-server",
   "version": "1.0.0",
-  "description": "WebSocket → OSC bridge for Seascape Controller",
+  "description": "WebSocket → OSC bridge for WebGyro",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

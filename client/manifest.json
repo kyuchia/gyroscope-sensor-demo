@@ -1,7 +1,7 @@
 {
-  "name": "Seascape Controller",
-  "short_name": "Seascape",
-  "description": "Mobile sensor → OSC controller for interactive installations",
+  "name": "WebGyro",
+  "short_name": "WebGyro",
+  "description": "Mobile sensor to OSC controller",
   "start_url": "/",
   "display": "standalone",
   "orientation": "any",

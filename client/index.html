@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#080c18">
     <link rel="manifest" href="manifest.json">
-    <title>Seascape Controller</title>
+    <title>WebGyro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -141,8 +141,8 @@
             <div class="card" id="controlCard">
                 <div class="cl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>Connection</div>
                 <div class="conn-row"><div class="ig"><span class="fl">Server IP</span><input type="text" id="ipInput" placeholder="192.168.1.100"></div><div class="ig port"><span class="fl">Port</span><input type="text" id="portInput" placeholder="8080" value="8080"></div></div>
-                <div class="prefix-row"><span class="fl">OSC Prefix</span><div class="ig"><input type="text" id="oscPrefix" value="/seascape" style="padding:10px 14px"></div></div>
-                <div class="osc-preview" id="oscPreview"><strong>Sending</strong><br><span class="oa">/seascape/orientation</span> {α, β, γ}<br><span class="oa">/seascape/acceleration</span> {x, y, z}<br><span class="oa">/seascape/rotationRate</span> {α, β, γ}<br><span class="oa">/seascape/shake</span> {0 | 1}<br><span class="oa">/seascape/pad/N</span> {0 | 1}</div>
+                <div class="prefix-row"><span class="fl">OSC Prefix</span><div class="ig"><input type="text" id="oscPrefix" value="/webgyro" style="padding:10px 14px"></div></div>
+                <div class="osc-preview" id="oscPreview"><strong>Sending</strong><br><span class="oa">/webgyro/orientation</span> {α, β, γ}<br><span class="oa">/webgyro/acceleration</span> {x, y, z}<br><span class="oa">/webgyro/rotationRate</span> {α, β, γ}<br><span class="oa">/webgyro/shake</span> {0 | 1}<br><span class="oa">/webgyro/pad/N</span> {0 | 1}</div>
             </div>
             <button class="btn-start" id="startBtn">Start</button>
         </div>
@@ -176,7 +176,7 @@
                     <div class="pads-row"><button class="pad-btn" data-pad="4"><span class="pn">4</span></button><button class="pad-btn" data-pad="5"><span class="pn">5</span></button><button class="pad-btn" data-pad="6"><span class="pn">6</span></button></div>
                     <div class="pads-row two"><button class="pad-btn" data-pad="7"><span class="pn">7</span></button><button class="pad-btn" data-pad="8"><span class="pn">8</span></button></div>
                 </div>
-                <div class="pad-osc">Press <span class="oa" id="padOscLabel">/seascape/pad/N</span> 1 · Release 0</div>
+                <div class="pad-osc">Press <span class="oa" id="padOscLabel">/webgyro/pad/N</span> 1 · Release 0</div>
             </div></div>
         </div>
     </div>
@@ -230,7 +230,7 @@ $('lockBtn').addEventListener('click', () => {
 // ══════════ OSC PREFIX LIVE UPDATE ══════════
 $('oscPrefix').addEventListener('input', updateOSC);
 function updateOSC() {
-    const p = $('oscPrefix').value.trim() || '/seascape';
+    const p = $('oscPrefix').value.trim() || '/webgyro';
     $('oscPreview').innerHTML =
         `<strong>Sending</strong><br>` +
         `<span class="oa">${p}/orientation</span> {α, β, γ}<br>` +
@@ -377,7 +377,7 @@ function stopSensors() {
 
 // ══════════ SEND DATA ══════════
 function sendData() {
-    const prefix = $('oscPrefix').value.trim() || '/seascape';
+    const prefix = $('oscPrefix').value.trim() || '/webgyro';
     const msg = { prefix, ts: Date.now() };
 
     if ($('tOrientation').checked) {
@@ -415,7 +415,7 @@ document.querySelectorAll('.pad-btn').forEach(p => {
         p.classList.add('pressed');
         haptic(15);
         const padId = p.dataset.pad;
-        const prefix = $('oscPrefix').value.trim() || '/seascape';
+        const prefix = $('oscPrefix').value.trim() || '/webgyro';
         const msg = { prefix, pad: { id: parseInt(padId), value: 1 } };
         if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
 
@@ -432,7 +432,7 @@ document.querySelectorAll('.pad-btn').forEach(p => {
     function release() {
         p.classList.remove('pressed');
         const padId = p.dataset.pad;
-        const prefix = $('oscPrefix').value.trim() || '/seascape';
+        const prefix = $('oscPrefix').value.trim() || '/webgyro';
         const msg = { prefix, pad: { id: parseInt(padId), value: 0 } };
         if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
     }
@@ -448,7 +448,7 @@ $('padsContainer')?.addEventListener('touchend', e => { e.preventDefault(); }, {
 // ══════════ SETTINGS PERSISTENCE ══════════
 function saveSettings() {
     try {
-        localStorage.setItem('seascape_cfg', JSON.stringify({
+        localStorage.setItem('webgyro_cfg', JSON.stringify({
             ip: $('ipInput').value, port: $('portInput').value, prefix: $('oscPrefix').value,
             rate: $('rateSlider').value,
             tO: $('tOrientation').checked, tA: $('tAccel').checked,
@@ -459,11 +459,11 @@ function saveSettings() {
 
 function loadSettings() {
     try {
-        const s = JSON.parse(localStorage.getItem('seascape_cfg'));
+        const s = JSON.parse(localStorage.getItem('webgyro_cfg'));
         if (!s) return;
         $('ipInput').value = s.ip || '';
         $('portInput').value = s.port || '8080';
-        $('oscPrefix').value = s.prefix || '/seascape';
+        $('oscPrefix').value = s.prefix || '/webgyro';
         $('rateSlider').value = s.rate || 50;
         $('rateVal').textContent = $('rateSlider').value + ' ms';
         $('tOrientation').checked = s.tO !== false;

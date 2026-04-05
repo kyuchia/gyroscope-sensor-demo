@@ -1,10 +1,10 @@
-# Seascape Controller
+# WebGyro
 
 A mobile PWA that streams phone sensor data (gyroscope, accelerometer, rotation rate) as OSC messages via WebSocket.
 
 > Originally developed for Yu-Chia Kuo's ICMC 2025 paper *"Seascape Serenity: Unveiling the Underwater Soundscape"* as an open, web-based alternative to proprietary mobile sensor apps.
 
-![Seascape Controller Interface](assets/preview.png)
+![WebGyro Interface](assets/preview.png)
 
 ## Architecture
 
@@ -40,7 +40,7 @@ Open `http://<your-ip>:8080` on your phone (same Wi-Fi).
 
 ## OSC Output
 
-All messages use a configurable prefix (default `/seascape`):
+All messages use a configurable prefix (default `/webgyro`):
 
 | Address | Arguments |
 |---|---|
