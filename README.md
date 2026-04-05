@@ -2,6 +2,8 @@
 
 A mobile PWA that streams phone sensor data (gyroscope, accelerometer, rotation rate) as OSC messages via WebSocket.
 
+> Originally developed for Yu-Chia Kuo's ICMC 2025 paper *"Seascape Serenity: Unveiling the Underwater Soundscape"* as an open, web-based alternative to proprietary mobile sensor apps.
+
 ## Architecture
 
 ```
@@ -72,3 +74,7 @@ npm run dev  # verbose logging
 │   └── package.json
 └── README.md
 ```
+
+## Reference
+
+Yu-Chia Kuo, Sin-Yu Deng, and Tak-Cheung Hui. 2025. "Seascape Serenity: Unveiling the Underwater Soundscape." In *International Computer Music Conference*. (In press) [[PDF]](https://drive.google.com/file/d/1xEVDE63kPeoUVNGVFWgiL136vRAw5iuZ/view)
