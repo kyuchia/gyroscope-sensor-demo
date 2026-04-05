@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#080c18">
+    <link rel="manifest" href="manifest.json">
+    <title>Seascape Controller</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --bg:#080c18;--card:rgba(35,40,50,.5);--cb:rgba(140,150,160,.1);
+            --t1:#edf0f5;--t2:rgba(175,190,215,.85);--t3:rgba(140,158,185,.75);
+            --a1:#2D79C9;--a2:#A5D8FF;--ag:linear-gradient(135deg,#2D79C9,#A5D8FF);
+            --green:#8AC4E8;--red:#B24C4C;
+            --r:16px;--rs:12px;--f:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+            --hh:48px;--th:56px;
+            --sab:env(safe-area-inset-bottom,0px);--sat:env(safe-area-inset-top,0px);
+            --sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px)
+        }
+        html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:var(--f);font-size:14px;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+        body{display:flex;flex-direction:column;padding-top:var(--sat);padding-left:var(--sal);padding-right:var(--sar)}
+        body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 40% 20%,rgba(50,60,80,.25),transparent 65%),radial-gradient(ellipse at 80% 50%,rgba(40,45,55,.15),transparent 55%),radial-gradient(ellipse at 20% 80%,rgba(20,25,35,.3),transparent 50%);pointer-events:none;z-index:0}
+
+        .header{position:relative;z-index:2;height:var(--hh);padding:0 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+        .logo{display:flex;align-items:center}.logo svg{width:28px;height:28px}
+        .header-right{display:flex;align-items:center;gap:10px}
+        .lock-btn{width:44px;height:44px;border:none;background:none;cursor:pointer;color:var(--t3);display:flex;align-items:center;justify-content:center;padding:0;transition:color .2s}
+        .lock-btn svg{width:20px;height:20px}.lock-btn.locked{color:var(--a2)}
+        .sp{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);color:var(--t3);transition:all .3s}
+        .sp.live{border-color:rgba(138,196,232,.2);background:rgba(138,196,232,.1);color:var(--green);filter:drop-shadow(0 0 5px rgba(138,196,232,.35))}
+        .sp.err{border-color:rgba(178,76,76,.2);background:rgba(178,76,76,.1);color:var(--red)}
+        .sd{width:5px;height:5px;border-radius:50%;background:currentColor}
+        .sp.live .sd{animation:pd 2s ease infinite}
+        @keyframes pd{0%,100%{opacity:1}50%{opacity:.25}}
+
+        .content-area{position:relative;z-index:1;flex:1;min-height:0}
+        .tp{position:absolute;inset:0;overflow:hidden;padding:12px 16px;display:none;flex-direction:column;gap:12px}
+        .tp.active{display:flex}
+        .tp.can-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
+        .tp.can-scroll::-webkit-scrollbar{width:3px}
+        .tp.can-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
+
+        .card{background:var(--card);border:1px solid var(--cb);border-radius:var(--r);padding:16px;backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);position:relative;overflow:hidden;flex-shrink:0}
+        .card::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(180,185,195,.1),transparent)}
+        .cl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--t2);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+        .cl svg{width:14px;height:14px;opacity:.6}
+
+        .conn-row{display:flex;gap:10px;margin-bottom:10px}
+        .ig{flex:1;display:flex;flex-direction:column;gap:4px}.ig.port{flex:0 0 100px}
+        .fl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)}
+        input[type="text"]{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--rs);color:#edf0f5;font-family:var(--f);font-size:16px;font-weight:500;padding:12px 14px;outline:none;transition:border-color .2s,background .2s,opacity .3s}
+        input:focus{border-color:rgba(45,121,201,.5);background:rgba(45,121,201,.07)}
+        input::placeholder{color:rgba(140,158,185,.6);font-weight:400}
+        .prefix-row{display:flex;align-items:center;gap:10px}
+        .prefix-row .fl{white-space:nowrap;padding-top:4px}.prefix-row .ig{flex:1}
+        .locked-overlay input[type="text"],.locked-overlay .toggle,.locked-overlay input[type="range"]{opacity:.35;pointer-events:none}
+
+        .osc-preview{margin-top:14px;padding:10px 12px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.04);border-radius:10px;font-size:11px;color:var(--t3);line-height:2}
+        .osc-preview strong{color:var(--t2);font-weight:600}
+        .oa{color:var(--a2);font-weight:500}
+        .btn-start{width:100%;padding:16px;border:none;border-radius:var(--rs);font-family:var(--f);font-size:15px;font-weight:600;letter-spacing:.02em;cursor:pointer;color:#edf0f5;background:linear-gradient(135deg,#1a4a7a,#2D79C9);box-shadow:0 4px 15px rgba(45,121,201,.3),0 2px 5px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.08);transition:all .2s ease;flex-shrink:0}
+        .btn-start:hover{background:linear-gradient(135deg,#1f5288,#3584d4);box-shadow:0 6px 20px rgba(45,121,201,.4),0 2px 5px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.08)}
+        .btn-start:active{transform:scale(.98)}
+        .btn-start.running{background:#B24C4C;box-shadow:0 4px 15px rgba(178,76,76,.25),0 2px 5px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.06)}
+
+        .sensor-list{display:flex;flex-direction:column;gap:8px}
+        .sensor-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;min-height:48px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:var(--rs)}
+        .sri{display:flex;flex-direction:column;gap:2px}
+        .sn{font-size:14px;font-weight:500;color:#edf0f5}
+        .sds{font-size:12px;color:var(--t3)}
+        .toggle{position:relative;width:44px;height:44px;cursor:pointer;flex-shrink:0;transition:opacity .3s;display:flex;align-items:center;justify-content:center}
+        .toggle input{opacity:0;width:0;height:0;position:absolute}
+        .toggle-track{width:44px;height:26px;background:rgba(255,255,255,.08);border-radius:13px;transition:background .3s;position:relative}
+        .toggle-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;background:rgba(255,255,255,.4);border-radius:50%;transition:transform .3s cubic-bezier(.4,0,.2,1),background .3s}
+        .toggle input:checked~.toggle-track{background:var(--ag)}
+        .toggle input:checked~.toggle-track .toggle-thumb{transform:translateX(18px);background:#edf0f5;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+
+        .rate-section{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:12px}
+        .rl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:rgba(210,220,235,.85);white-space:nowrap}
+        input[type="range"]{flex:1;-webkit-appearance:none;height:4px;background:rgba(255,255,255,.08);border-radius:2px;outline:none;transition:opacity .3s}
+        input[type="range"]::-webkit-slider-runnable-track{height:4px;border-radius:2px}
+        input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#A5D8FF;cursor:pointer;box-shadow:0 0 8px rgba(165,216,255,.4);margin-top:-9px}
+        .rv{font-size:13px;font-weight:600;color:#A5D8FF;min-width:48px;text-align:right;font-variant-numeric:tabular-nums}
+
+        .viz-layout{display:flex;flex-direction:column;height:100%;gap:10px}
+        .viz-canvas-wrap{flex:1;min-height:0;border-radius:var(--r);background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04);position:relative;overflow:hidden}
+        .viz-canvas-wrap canvas{width:100%;height:100%;display:block}
+        .viz-hint{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:11px;font-weight:500;color:var(--t3)}
+        .data-cols{display:flex;gap:8px;flex-shrink:0}
+        .data-col{flex:1;background:var(--card);border:1px solid var(--cb);border-radius:var(--rs);padding:8px 10px;backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px)}
+        .dct{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;background:var(--ag);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .dcr{display:flex;justify-content:space-between;padding:2px 0}
+        .dcr .dk{font-size:11px;color:var(--t3);font-weight:500}
+        .dcr .dv{font-size:12px;color:#edf0f5;font-weight:600;font-variant-numeric:tabular-nums}
+
+        .pads-layout{display:flex;flex-direction:column;height:100%}
+        .pads-card{background:var(--card);border:1px solid var(--cb);border-radius:var(--r);padding:14px;backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);position:relative;overflow:hidden;flex:1;display:flex;flex-direction:column}
+        .pads-card::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(180,185,195,.1),transparent)}
+        .pads-container{flex:1;display:flex;flex-direction:column;gap:8px}
+        .pads-row{display:flex;justify-content:center;gap:8px;flex:1}
+        .pad-btn{flex:1;border-radius:18px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);color:var(--t3);font-family:var(--f);font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;transition:transform .08s,border-color .15s,background .15s;-webkit-touch-callout:none}
+        .pads-row.two .pad-btn{max-width:50%}
+        .pad-btn .pn{position:relative;z-index:2;transition:color .1s}
+        .pad-btn .ripple{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(165,216,255,.4),rgba(45,121,201,.15) 40%,transparent 70%);transform:scale(0);opacity:0;pointer-events:none;z-index:1}
+        @keyframes rip{0%{transform:scale(0);opacity:1}100%{transform:scale(3);opacity:0}}
+        .pad-btn.pressed{border-color:rgba(165,216,255,.25);background:rgba(45,121,201,.1);transform:scale(.97)}
+        .pad-btn.pressed .pn{color:#edf0f5}
+        .pad-osc{text-align:center;padding:6px 0 0;flex-shrink:0;font-size:11px;color:var(--t3)}
+        .pad-osc .oa{color:var(--a2);font-weight:500}
+
+        .tab-bar{position:relative;z-index:10;display:flex;height:calc(var(--th) + var(--sab));flex-shrink:0;background:rgba(8,12,24,.92);backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);border-top:1px solid rgba(140,150,160,.06);padding-bottom:var(--sab)}
+        .ti{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--t3);font-family:var(--f);font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;transition:color .2s;padding:0;min-height:44px}
+        .ti svg{width:20px;height:20px;stroke-width:1.8;transition:all .2s}
+        .ti.active{color:var(--a2)}.ti.active svg{filter:drop-shadow(0 0 6px rgba(165,216,255,.25))}
+
+        @media(max-width:350px){.conn-row{flex-direction:column}.ig.port{flex:auto}.prefix-row{flex-direction:column;align-items:stretch;gap:4px}.prefix-row .fl{padding:0}.data-cols{flex-direction:column}.ti{font-size:10px}.pad-btn{font-size:16px;border-radius:14px}.pads-container,.pads-row{gap:6px}}
+        @media(min-width:375px){.sensor-row{padding:13px 14px}}
+        @media(min-width:414px){.sensor-row{padding:14px 16px}.pad-btn{font-size:20px}.sn{font-size:15px}}
+        @media(min-width:500px){body{max-width:500px;margin:0 auto}}
+        @media(min-width:768px){body{max-width:500px;margin:0 auto}.sn{font-size:16px}.sds{font-size:13px}.pad-btn{font-size:22px;border-radius:22px}.dcr .dk{font-size:12px}.dcr .dv{font-size:13px}}
+        @media(orientation:landscape) and (max-height:500px){.header{height:36px;padding:0 12px}.logo svg{width:24px;height:24px}.tab-bar{height:calc(44px + var(--sab))}.ti{gap:1px;font-size:0;min-height:36px}.ti svg{width:22px;height:22px}.tp{padding:8px 16px;gap:8px}.sensor-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}.sensor-row{padding:8px 10px;min-height:40px}.sn{font-size:12px}.sds{font-size:10px}.rate-section{margin-top:8px;padding-top:8px}.viz-layout{flex-direction:row}.viz-canvas-wrap{flex:1}.data-cols{flex-direction:column;width:120px;flex-shrink:0}.card{padding:12px}.cl{margin-bottom:8px;font-size:10px}}
+        @media(max-height:600px) and (orientation:portrait){.tp{padding-bottom:8px}}
+        @media(display-mode:standalone){.header{padding-top:4px}}
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo"><svg viewBox="0 0 64 64" fill="none"><path d="M32 6L56 18V46L32 58L8 46V18Z" stroke="#2D79C9" stroke-width="1.2" opacity=".45"/><ellipse cx="32" cy="32" rx="22" ry="9" stroke="#2D79C9" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="32" cy="32" rx="22" ry="9" stroke="#A5D8FF" stroke-width="2" stroke-linecap="round" transform="rotate(60 32 32)" opacity=".7"/><ellipse cx="32" cy="32" rx="22" ry="9" stroke="#2D79C9" stroke-width="1.5" stroke-linecap="round" transform="rotate(-60 32 32)" opacity=".4"/><circle cx="32" cy="32" r="3" fill="#A5D8FF"/><circle cx="32" cy="32" r="8" stroke="#A5D8FF" stroke-width=".5" opacity=".25"/></svg></div>
+        <div class="header-right">
+            <button class="lock-btn" id="lockBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="lockIcon"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></button>
+            <div class="sp" id="sPill"><span class="sd"></span><span id="sTxt">Offline</span></div>
+        </div>
+    </div>
+    <div class="content-area">
+        <div class="tp active" id="page-connect">
+            <div class="card" id="controlCard">
+                <div class="cl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>Connection</div>
+                <div class="conn-row"><div class="ig"><span class="fl">Server IP</span><input type="text" id="ipInput" placeholder="192.168.1.100"></div><div class="ig port"><span class="fl">Port</span><input type="text" id="portInput" placeholder="8080" value="8080"></div></div>
+                <div class="prefix-row"><span class="fl">OSC Prefix</span><div class="ig"><input type="text" id="oscPrefix" value="/seascape" style="padding:10px 14px"></div></div>
+                <div class="osc-preview" id="oscPreview"><strong>Sending</strong><br><span class="oa">/seascape/orientation</span> {α, β, γ}<br><span class="oa">/seascape/acceleration</span> {x, y, z}<br><span class="oa">/seascape/rotationRate</span> {α, β, γ}<br><span class="oa">/seascape/shake</span> {0 | 1}<br><span class="oa">/seascape/pad/N</span> {0 | 1}</div>
+            </div>
+            <button class="btn-start" id="startBtn">Start</button>
+        </div>
+        <div class="tp can-scroll" id="page-sensors">
+            <div class="card" id="sensorsCard" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+                <div class="cl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Sensors</div>
+                <div class="sensor-list">
+                    <div class="sensor-row"><div class="sri"><span class="sn">Gyroscope</span><span class="sds">alpha / beta / gamma</span></div><label class="toggle"><input type="checkbox" id="tOrientation" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+                    <div class="sensor-row"><div class="sri"><span class="sn">Accelerometer</span><span class="sds">x / y / z (incl. gravity)</span></div><label class="toggle"><input type="checkbox" id="tAccel" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+                    <div class="sensor-row"><div class="sri"><span class="sn">Rotation Rate</span><span class="sds">angular velocity (°/s)</span></div><label class="toggle"><input type="checkbox" id="tRotation" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+                    <div class="sensor-row"><div class="sri"><span class="sn">Shake Detection</span><span class="sds">trigger on strong motion</span></div><label class="toggle"><input type="checkbox" id="tShake" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+                </div>
+                <div class="rate-section"><span class="rl">Frequency</span><input type="range" id="rateSlider" min="10" max="200" value="50" step="10"><span class="rv" id="rateVal">50 ms</span></div>
+            </div>
+        </div>
+        <div class="tp" id="page-3d">
+            <div class="viz-layout">
+                <div class="viz-canvas-wrap"><canvas id="vizCanvas"></canvas><div class="viz-hint" id="vizHint">Connect to start</div></div>
+                <div class="data-cols">
+                    <div class="data-col"><div class="dct">Orient.</div><div class="dcr"><span class="dk">α</span><span class="dv" id="dOA">—</span></div><div class="dcr"><span class="dk">β</span><span class="dv" id="dOB">—</span></div><div class="dcr"><span class="dk">γ</span><span class="dv" id="dOG">—</span></div></div>
+                    <div class="data-col"><div class="dct">Accel.</div><div class="dcr"><span class="dk">x</span><span class="dv" id="dAX">—</span></div><div class="dcr"><span class="dk">y</span><span class="dv" id="dAY">—</span></div><div class="dcr"><span class="dk">z</span><span class="dv" id="dAZ">—</span></div></div>
+                    <div class="data-col"><div class="dct">Rot. Rate</div><div class="dcr"><span class="dk">α</span><span class="dv" id="dRA">—</span></div><div class="dcr"><span class="dk">β</span><span class="dv" id="dRB">—</span></div><div class="dcr"><span class="dk">γ</span><span class="dv" id="dRG">—</span></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="tp" id="page-pads">
+            <div class="pads-layout"><div class="pads-card">
+                <div class="cl" style="margin-bottom:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Trigger Pads</div>
+                <div class="pads-container" id="padsContainer">
+                    <div class="pads-row"><button class="pad-btn" data-pad="1"><span class="pn">1</span></button><button class="pad-btn" data-pad="2"><span class="pn">2</span></button><button class="pad-btn" data-pad="3"><span class="pn">3</span></button></div>
+                    <div class="pads-row"><button class="pad-btn" data-pad="4"><span class="pn">4</span></button><button class="pad-btn" data-pad="5"><span class="pn">5</span></button><button class="pad-btn" data-pad="6"><span class="pn">6</span></button></div>
+                    <div class="pads-row two"><button class="pad-btn" data-pad="7"><span class="pn">7</span></button><button class="pad-btn" data-pad="8"><span class="pn">8</span></button></div>
+                </div>
+                <div class="pad-osc">Press <span class="oa" id="padOscLabel">/seascape/pad/N</span> 1 · Release 0</div>
+            </div></div>
+        </div>
+    </div>
+    <div class="tab-bar">
+        <button class="ti active" data-tab="connect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>Connect</button>
+        <button class="ti" data-tab="sensors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Sensors</button>
+        <button class="ti" data-tab="3d"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3l9 4.5v9L12 21l-9-4.5v-9L12 3z"/><path d="M12 12l9-4.5"/><path d="M12 12v9"/><path d="M12 12L3 7.5"/></svg>3D</button>
+        <button class="ti" data-tab="pads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Pads</button>
+    </div>
+<script>
+(() => {
+const $=id=>document.getElementById(id);
+
+// ══════════ STATE ══════════
+let ws = null, isRunning = false, sendInterval = null, isLocked = false;
+const S = {
+    orientation: { alpha:0, beta:0, gamma:0 },
+    acceleration: { x:0, y:0, z:0 },
+    rotationRate: { alpha:0, beta:0, gamma:0 },
+    shake: false
+};
+let lastAccMag = 0;
+const SHAKE_THRESHOLD = 25;
+let shakeTimeout = null;
+const R = v => Math.round(v * 100) / 100;
+
+// ══════════ TABS ══════════
+document.querySelectorAll('.ti').forEach(b => {
+    b.addEventListener('click', () => {
+        document.querySelectorAll('.ti').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.tp').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        $('page-' + b.dataset.tab).classList.add('active');
+        if (b.dataset.tab === '3d') resizeCanvas();
+    });
+});
+
+// ══════════ LOCK ══════════
+$('lockBtn').addEventListener('click', () => {
+    isLocked = !isLocked;
+    $('lockBtn').classList.toggle('locked', isLocked);
+    $('lockIcon').innerHTML = isLocked
+        ? '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'
+        : '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>';
+    $('controlCard').classList.toggle('locked-overlay', isLocked);
+    $('sensorsCard').classList.toggle('locked-overlay', isLocked);
+    $('startBtn').style.opacity = isLocked ? '.35' : '';
+    $('startBtn').style.pointerEvents = isLocked ? 'none' : '';
+});
+
+// ══════════ OSC PREFIX LIVE UPDATE ══════════
+$('oscPrefix').addEventListener('input', updateOSC);
+function updateOSC() {
+    const p = $('oscPrefix').value.trim() || '/seascape';
+    $('oscPreview').innerHTML =
+        `<strong>Sending</strong><br>` +
+        `<span class="oa">${p}/orientation</span> {α, β, γ}<br>` +
+        `<span class="oa">${p}/acceleration</span> {x, y, z}<br>` +
+        `<span class="oa">${p}/rotationRate</span> {α, β, γ}<br>` +
+        `<span class="oa">${p}/shake</span> {0 | 1}<br>` +
+        `<span class="oa">${p}/pad/N</span> {0 | 1}`;
+    $('padOscLabel').textContent = p + '/pad/N';
+}
+
+// ══════════ HAPTIC FEEDBACK ══════════
+function haptic(ms) {
+    try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e) {}
+}
+
+// ══════════ SLIDER FILL ══════════
+function updateSliderFill(slider) {
+    const min = parseFloat(slider.min), max = parseFloat(slider.max), val = parseFloat(slider.value);
+    const pct = ((val - min) / (max - min)) * 100;
+    slider.style.background = `linear-gradient(to right, #4682B4 0%, #4682B4 ${pct}%, rgba(255,255,255,.08) ${pct}%)`;
+}
+
+// ══════════ FREQUENCY SLIDER ══════════
+$('rateSlider').addEventListener('input', function() {
+    $('rateVal').textContent = this.value + ' ms';
+    updateSliderFill(this);
+    haptic(5);
+    if (isRunning && sendInterval) {
+        clearInterval(sendInterval);
+        sendInterval = setInterval(sendData, parseInt(this.value));
+    }
+});
+updateSliderFill($('rateSlider'));
+
+// ══════════ TOGGLE HAPTICS ══════════
+document.querySelectorAll('.toggle input').forEach(t => {
+    t.addEventListener('change', () => haptic(10));
+});
+
+// ══════════ START / STOP ══════════
+$('startBtn').addEventListener('click', () => { if (isRunning) stop(); else start(); });
+
+async function start() {
+    const permOk = await requestPermissions();
+    if (!permOk) return;
+
+    const ip = $('ipInput').value.trim();
+    const port = $('portInput').value.trim() || '8080';
+
+    // Auto-detect: if IP is empty, connect back to the host that served this page
+    let wsURL;
+    if (ip) {
+        const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+        wsURL = `${protocol}://${ip}:${port}`;
+    } else if (location.hostname && location.hostname !== '') {
+        const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+        wsURL = `${protocol}://${location.host}`;
+    }
+
+    if (wsURL) {
+        try {
+            ws = new WebSocket(wsURL);
+            ws.onopen = () => setStatus('live', 'Live');
+            ws.onerror = () => setStatus('err', 'Error');
+            ws.onclose = () => { if (isRunning) setStatus('err', 'Lost'); };
+        } catch (e) { alert('Connection failed: ' + e.message); return; }
+    } else {
+        setStatus('live', 'Local');
+    }
+
+    startSensors();
+    sendInterval = setInterval(sendData, parseInt($('rateSlider').value));
+    isRunning = true;
+    $('startBtn').textContent = 'Stop';
+    $('startBtn').classList.add('running');
+    $('vizHint').textContent = 'Tilt device to see orientation';
+}
+
+function stop() {
+    stopSensors();
+    if (sendInterval) { clearInterval(sendInterval); sendInterval = null; }
+    if (ws && ws.readyState === WebSocket.OPEN) ws.close();
+    ws = null;
+    isRunning = false;
+    $('startBtn').textContent = 'Start';
+    $('startBtn').classList.remove('running');
+    setStatus('', 'Offline');
+    $('vizHint').textContent = 'Connect to start';
+}
+
+function setStatus(cls, txt) {
+    $('sPill').className = 'sp' + (cls ? ' ' + cls : '');
+    $('sTxt').textContent = txt;
+}
+
+// ══════════ PERMISSIONS (iOS 13+) ══════════
+async function requestPermissions() {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try { const p = await DeviceOrientationEvent.requestPermission(); if (p !== 'granted') { alert('Orientation permission denied.'); return false; } } catch(e) { console.error(e); return false; }
+    }
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+        try { const p = await DeviceMotionEvent.requestPermission(); if (p !== 'granted') { alert('Motion permission denied.'); return false; } } catch(e) { console.error(e); return false; }
+    }
+    return true;
+}
+
+// ══════════ SENSOR LISTENERS ══════════
+function onOrientation(e) {
+    S.orientation.alpha = e.alpha || 0;
+    S.orientation.beta  = e.beta  || 0;
+    S.orientation.gamma = e.gamma || 0;
+}
+
+function onMotion(e) {
+    const a = e.accelerationIncludingGravity || {};
+    S.acceleration.x = a.x || 0;
+    S.acceleration.y = a.y || 0;
+    S.acceleration.z = a.z || 0;
+    const r = e.rotationRate || {};
+    S.rotationRate.alpha = r.alpha || 0;
+    S.rotationRate.beta  = r.beta  || 0;
+    S.rotationRate.gamma = r.gamma || 0;
+
+    if ($('tShake').checked) {
+        const mag = Math.sqrt((a.x||0)**2 + (a.y||0)**2 + (a.z||0)**2);
+        const delta = Math.abs(mag - lastAccMag);
+        lastAccMag = mag;
+        if (delta > SHAKE_THRESHOLD) {
+            S.shake = true;
+            clearTimeout(shakeTimeout);
+            shakeTimeout = setTimeout(() => { S.shake = false; }, 400);
+        }
+    }
+}
+
+function startSensors() {
+    window.addEventListener('deviceorientation', onOrientation, true);
+    window.addEventListener('devicemotion', onMotion, true);
+}
+function stopSensors() {
+    window.removeEventListener('deviceorientation', onOrientation, true);
+    window.removeEventListener('devicemotion', onMotion, true);
+}
+
+// ══════════ SEND DATA ══════════
+function sendData() {
+    const prefix = $('oscPrefix').value.trim() || '/seascape';
+    const msg = { prefix, ts: Date.now() };
+
+    if ($('tOrientation').checked) {
+        msg.orientation = { alpha: R(S.orientation.alpha), beta: R(S.orientation.beta), gamma: R(S.orientation.gamma) };
+    }
+    if ($('tAccel').checked) {
+        msg.acceleration = { x: R(S.acceleration.x), y: R(S.acceleration.y), z: R(S.acceleration.z) };
+    }
+    if ($('tRotation').checked) {
+        msg.rotationRate = { alpha: R(S.rotationRate.alpha), beta: R(S.rotationRate.beta), gamma: R(S.rotationRate.gamma) };
+    }
+    if ($('tShake').checked) {
+        msg.shake = S.shake ? 1 : 0;
+    }
+
+    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
+
+    // Update 3D page live data
+    const o = S.orientation, a = S.acceleration, r = S.rotationRate;
+    $('dOA').textContent = o.alpha.toFixed(1) + '°';
+    $('dOB').textContent = o.beta.toFixed(1) + '°';
+    $('dOG').textContent = o.gamma.toFixed(1) + '°';
+    $('dAX').textContent = a.x.toFixed(1);
+    $('dAY').textContent = a.y.toFixed(1);
+    $('dAZ').textContent = a.z.toFixed(1);
+    $('dRA').textContent = r.alpha.toFixed(1);
+    $('dRB').textContent = r.beta.toFixed(1);
+    $('dRG').textContent = r.gamma.toFixed(1);
+}
+
+// ══════════ PADS ══════════
+document.querySelectorAll('.pad-btn').forEach(p => {
+    function press(e) {
+        e.preventDefault();
+        p.classList.add('pressed');
+        haptic(15);
+        const padId = p.dataset.pad;
+        const prefix = $('oscPrefix').value.trim() || '/seascape';
+        const msg = { prefix, pad: { id: parseInt(padId), value: 1 } };
+        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
+
+        const r = p.getBoundingClientRect();
+        const tc = e.touches ? e.touches[0] : e;
+        const x = tc.clientX - r.left, y = tc.clientY - r.top;
+        const sz = Math.max(r.width, r.height) * 2.5;
+        const rp = document.createElement('div');
+        rp.className = 'ripple';
+        rp.style.cssText = `width:${sz}px;height:${sz}px;left:${x-sz/2}px;top:${y-sz/2}px;animation:rip .7s ease-out forwards`;
+        p.appendChild(rp);
+        rp.addEventListener('animationend', () => rp.remove());
+    }
+    function release() {
+        p.classList.remove('pressed');
+        const padId = p.dataset.pad;
+        const prefix = $('oscPrefix').value.trim() || '/seascape';
+        const msg = { prefix, pad: { id: parseInt(padId), value: 0 } };
+        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
+    }
+    p.addEventListener('touchstart', press, { passive: false });
+    p.addEventListener('touchend', release);
+    p.addEventListener('touchcancel', release);
+    p.addEventListener('mousedown', press);
+    p.addEventListener('mouseup', release);
+    p.addEventListener('mouseleave', release);
+});
+$('padsContainer')?.addEventListener('touchend', e => { e.preventDefault(); }, { passive: false });
+
+// ══════════ SETTINGS PERSISTENCE ══════════
+function saveSettings() {
+    try {
+        localStorage.setItem('seascape_cfg', JSON.stringify({
+            ip: $('ipInput').value, port: $('portInput').value, prefix: $('oscPrefix').value,
+            rate: $('rateSlider').value,
+            tO: $('tOrientation').checked, tA: $('tAccel').checked,
+            tR: $('tRotation').checked, tS: $('tShake').checked
+        }));
+    } catch(e) {}
+}
+
+function loadSettings() {
+    try {
+        const s = JSON.parse(localStorage.getItem('seascape_cfg'));
+        if (!s) return;
+        $('ipInput').value = s.ip || '';
+        $('portInput').value = s.port || '8080';
+        $('oscPrefix').value = s.prefix || '/seascape';
+        $('rateSlider').value = s.rate || 50;
+        $('rateVal').textContent = $('rateSlider').value + ' ms';
+        $('tOrientation').checked = s.tO !== false;
+        $('tAccel').checked = s.tA !== false;
+        $('tRotation').checked = s.tR !== false;
+        $('tShake').checked = s.tS !== false;
+        updateOSC();
+        updateSliderFill($('rateSlider'));
+    } catch(e) {}
+}
+
+document.querySelectorAll('input').forEach(el => {
+    el.addEventListener('change', saveSettings);
+    el.addEventListener('input', saveSettings);
+});
+loadSettings();
+
+// ══════════ 3D CANVAS ══════════
+const canvas = $('vizCanvas'), ctx = canvas.getContext('2d');
+function resizeCanvas() {
+    const r = canvas.parentElement.getBoundingClientRect();
+    canvas.width = r.width * 2;
+    canvas.height = r.height * 2;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 100));
+
+function drawPhone(cx, cy, s, rx, ry) {
+    ctx.save();
+    const betaRad = -rx * Math.PI / 180;
+    const gammaRad = -ry * Math.PI / 180;
+
+    // Front-back: move up/down + scale (tilting forward = smaller + higher)
+    const betaFactor = Math.sin(betaRad);
+    const yShift = betaFactor * -40 * s;
+    const scaleShift = 1 + betaFactor * -.15;
+
+    ctx.translate(cx, cy + yShift);
+    ctx.scale(scaleShift, scaleShift);
+
+    // Left-right skew
+    const gx = Math.sin(gammaRad) * .55;
+    // Front-back: foreshorten height when tilted
+    const heightSquash = 1 - Math.abs(betaFactor) * .25;
+
+    const pw = 55*s, ph = 95*s * heightSquash;
+    ctx.transform(1, 0, gx, 1, 0, 0);
+
+    // Shadow — shifts with tilt
+    const shadowOff = 4 + betaFactor * 3;
+    ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.roundRect(-pw/2+shadowOff,-ph/2+shadowOff,pw,ph,10*s); ctx.fill();
+    // Body
+    ctx.fillStyle = 'rgba(30,40,70,.95)'; ctx.strokeStyle = 'rgba(255,255,255,.2)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(-pw/2,-ph/2,pw,ph,10*s); ctx.fill(); ctx.stroke();
+    // Screen
+    ctx.fillStyle = 'rgba(45,121,201,.1)'; ctx.beginPath(); ctx.roundRect(-pw/2+4,-ph/2+8,pw-8,ph-16,5*s); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = .5; ctx.stroke();
+    // Notch
+    ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.beginPath(); ctx.roundRect(-8*s,-ph/2+3,16*s,4*s,2); ctx.fill();
+    // Crosshair
+    ctx.strokeStyle = 'rgba(165,216,255,.25)'; ctx.lineWidth = .5; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(0,-ph/2+12); ctx.lineTo(0,ph/2-12); ctx.moveTo(-pw/2+8,0); ctx.lineTo(pw/2-8,0); ctx.stroke(); ctx.setLineDash([]);
+    // Center dot
+    ctx.fillStyle = 'rgba(165,216,255,.5)'; ctx.beginPath(); ctx.arc(0,0,2.5,0,Math.PI*2); ctx.fill();
+    // X axis
+    ctx.strokeStyle = 'rgba(255,82,82,.5)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(35,0); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,82,82,.5)'; ctx.font = '600 12px Inter'; ctx.fillText('X',38,4);
+    // Y axis
+    ctx.strokeStyle = 'rgba(0,230,118,.5)'; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-35); ctx.stroke();
+    ctx.fillStyle = 'rgba(0,230,118,.5)'; ctx.fillText('Y',4,-38);
+    ctx.restore();
+}
+
+const particles = Array.from({length:12}, () => ({
+    x:Math.random(), y:Math.random(), r:1+Math.random()*1.5,
+    sp:.0003+Math.random()*.0006, a:.06+Math.random()*.1, d:Math.random()*Math.PI*2
+}));
+
+function animate() {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    const o = S.orientation;
+    const rx = isRunning ? o.beta : Math.sin(Date.now()*.001*.7)*35;
+    const ry = isRunning ? o.gamma : Math.sin(Date.now()*.001*.5)*30;
+
+    particles.forEach(p => {
+        p.y -= p.sp; p.x += Math.sin(Date.now()*.001+p.d)*.0003;
+        if (p.y < -.05) { p.y = 1.05; p.x = Math.random(); }
+        ctx.fillStyle = `rgba(165,216,255,${p.a})`;
+        ctx.beginPath(); ctx.arc(p.x*w, p.y*h, p.r, 0, Math.PI*2); ctx.fill();
+    });
+
+    const glow = ctx.createRadialGradient(w/2,h/2,20,w/2,h/2,200);
+    glow.addColorStop(0,'rgba(45,121,201,.08)'); glow.addColorStop(1,'transparent');
+    ctx.fillStyle = glow; ctx.fillRect(w/2-200,h/2-200,400,400);
+    drawPhone(w/2, h/2, 2.5, rx, ry);
+    requestAnimationFrame(animate);
+}
+animate();
+
+})();
+</script>
+</body>
+</html>
