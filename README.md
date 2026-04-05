@@ -4,7 +4,7 @@ A mobile PWA that streams phone sensor data (gyroscope, accelerometer, rotation 
 
 > Originally developed for Yu-Chia Kuo's ICMC 2025 paper *"Seascape Serenity: Unveiling the Underwater Soundscape"* as an open, web-based alternative to proprietary mobile sensor apps.
 
-![Seascape Controller Interface](assets/preview.jpg)
+![Seascape Controller Interface](assets/preview.png)
 
 ## Architecture
 
